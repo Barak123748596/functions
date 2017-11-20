@@ -200,3 +200,12 @@ def compute_delta(a, n1, n2=1):
     plt.plot(aNew, delta_p_smooth, 'o', label = 'delta_p', linestyle = '-', marker = ',')
     plt.plot(aNew, delta_s_smooth, 'r', label = 'delta_s', linestyle = '-', marker = ',')
     plt.show()
+
+'''空气中光速'''
+def p_amend(p, t, g=9.801):
+    print (round((g/9.80665*(p-(0.000182-0.00001)*p*t)),1),'mmHg')
+    print (round((g/9.80665*(p-(0.000182-0.00001)*p*t)*133.3224/100000),4),"*10^5 Pa")
+
+def v_amend(t, pw, p):
+    v = 331.45*np.sqrt((1+t/273.15)*(1+0.3192*pw/p))
+    print(v, 'm/s')
