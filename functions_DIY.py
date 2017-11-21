@@ -74,8 +74,9 @@ def convert_toLaTeX():
     rowNum = arr.shape[1]
     for i in range(lineNum):
         for j in range(rowNum-1):
-            print(arr[i][j], ' & ', end=' ')
+            print(arr[i][j], '&', end=' ')
         print(arr[i][rowNum-1],'\\\\')
+        print('\hline')
 
 '''
 
