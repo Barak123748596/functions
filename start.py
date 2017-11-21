@@ -1,3 +1,3 @@
 from functions_DIY import *
 
-convert_toLaTeX()
+print(np.sqrt(0.29*0.29+0.25))

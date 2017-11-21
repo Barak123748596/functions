@@ -83,9 +83,9 @@ def convert_toLaTeX():
 复摆(compound pendulum)实验需要的函数
 '''
 #线性回归
-def linear_regression():
-    y = np.array(np.fromstring(input('Please input the y values'), sep=' '))
-    x = np.array(np.fromstring(input('Please input the x values'), sep=' '))
+def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1]):
+    #y = np.array(np.fromstring(input('Please input the y values'), sep=' '))
+    #x = np.array(np.fromstring(input('Please input the x values'), sep=' '))
     A = np.vstack([x, np.ones(len(x))]).T
     #model
     m,c = np.linalg.lstsq(A, y)[0]
@@ -210,3 +210,14 @@ def p_amend(p, t, g=9.801):
 def v_amend(t, pw, p):
     v = 331.45*np.sqrt((1+t/273.15)*(1+0.3192*pw/p))
     print(v, 'm/s')
+
+def rmse():
+    x = loadDataSet()[0]
+    y = loadDataSet()[1]
+    targets = y
+    A = np.vstack([x, np.ones(len(x))]).T
+    m,c = np.linalg.lstsq(A, y)[0]
+    predictions = x*m+c
+    rmse = np.sqrt(((predictions - targets) ** 2).mean())
+    print("RMSE : ", rmse)
+    return rmse
