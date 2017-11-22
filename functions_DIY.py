@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 
 __version__ = '0.3'
 __name__ = 'functions_DIY'
+'''
+    本模块中默认data.txt的第一行为x变量，第二行以后为y变量，切记，切记！
+    若有特殊需要更改顺序，则在使用函数时定好参数！
+'''
+
+
 
 #绘图
 def draw_plot(x, y):
@@ -168,8 +174,42 @@ def curve_regression(k=10):
     ax.scatter(xMat[:,1].flatten().A[0], np.mat(yArr).T.flatten().A[0] , s=2, c='red')
     plt.show()
 
-'''
+#多项式拟合
+def poly_regression(x=loadDataSet()[0], y=loadDataSet()[1], k=3):
+    z1 = np.polyfit(x, y, k)#用k次多项式拟合
+    p1 = np.poly1d(z1)
+    print(p1) #在屏幕上打印拟合多项式
+    yvals=p1(x)#也可以使用yvals=np.polyval(z1,x)
+    plot1=plt.plot(x, y, '*',label='original values')
+    plot2=plt.plot(x, yvals, 'r',label='polyfit values')
+    plt.xlabel('x axis')
+    plt.ylabel('y axis')
+    plt.legend(loc=4)#指定legend的位置,读者可以自己help它的用法
+    plt.title('polyfitting')
+    plt.show()
+    plt.savefig('p1.png')
+    testPoint = input('testPoint ? ')
+    print(p1(testPoint))
 
+#指定函数拟合
+def func(a, b, x=loadDataSet()[0]):   #a,b为函数需要确定的参数
+    return a*np.exp(b/x)
+def specify_regression(x=loadDataSet()[0], y=loadDataSet()[1]):
+    popt, pcov = np.curve_fit(func, x, y)  #没运行过，不知numpy是否有curve_fit函数
+    a=popt[0]#popt里面是拟合系数，读者可以自己help其用法
+    b=popt[1]
+    yvals=func(x,a,b)
+    plot1=plt.plot(x, y, '*',label='original values')
+    plot2=plt.plot(x, yvals, 'r',label='curve_fit values')
+    plt.xlabel('x axis')
+    plt.ylabel('y axis')
+    plt.legend(loc=4)#指定legend的位置
+    plt.title('curve_fit')
+    plt.show()
+    plt.savefig('p2.png')
+
+
+'''
 霍尔效应
 '''
 def from_I_U_K_to_B():
