@@ -2,6 +2,9 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
+__version__ = '0.3'
+__name__ = 'functions_DIY'
+
 #绘图
 def draw_plot(x, y):
     fig = plt.figure()
@@ -40,7 +43,7 @@ def loadDataSet(filename="data.txt"):
 
 #标准差
 def standard_deviation():
-    arr = np.fromstring(input('input the list:\n'), dtype=float, sep=' ')
+    arr = loadDataSet()[0]
     print('The number of list is: ',len(arr))
     list_average = arr.mean()
     print('The average is: ', list_average)
@@ -57,8 +60,7 @@ def standard_deviation():
         print('the Standard Deviation with Tolerance is:', sigma_tolerance)
         return
 
-#将以'\n'间隔的字符变为带'&'的LaTeX格式
-
+#将以'\n'间隔的字符变为带'&'的LaTeX格式，这里不可用loadDataSet，因为此处有字符
 def convert_toLaTeX():
     file = open("data.txt","r")
     list_arr = file.readlines()
@@ -107,7 +109,7 @@ def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1]):
     else:print('Thanks for using^_^');
 
 #近似共轭点法
-def compound_pendulum_jinsigongedian():
+def compound_pendulum_approximate_conjugate():
     h1 = float(input('h1 = '))/100
     h2 = float(input('h2 = '))/100
     T1 = float(input('T1 = '))
@@ -120,44 +122,44 @@ def compound_pendulum_jinsigongedian():
     print('g = ', round(g, 2), 'm/s^2')
 
 #共轭点法
-def compound_pendulum_gongedian():
+def compound_pendulum_conjugate():
     T = float(input('T = '))
     x1 = float(input('x1 = '))/100
     x2 = float(input('x2 = '))/100
     g = 4*np.pi*np.pi*np.fabs(x1 - x2)/T/T
     print('g = ', g, 'm/s^2')
 
-#曲线回归（局部加权线性回归Locally weighted linear regression）
-def lwlr_point(testPoint,xArr,yArr,k=0.01):
+#曲线回归（局部加权线性回归Locally weighted linear regression，但是似乎不太对）
+def lwlr_point(testPoint, xArr, yArr, k=0.5):
     xMat = np.mat(xArr); yMat = np.mat(yArr).T
     m = np.shape(xMat)[0]
-    print(m)
     weights = np.mat(np.eye((m)))
     for j in range(m):
         diffMat = testPoint - xMat[j,:]
-        print('diffmat = ',diffMat)
-        weights[j,j] = np.exp(diffMat*diffMat.T/(-2.0*k**2))
+    #    weights[j,j] = np.exp(diffMat*diffMat.T/(-2.0*k**2))
     xTx = xMat.T * (weights * xMat)
+    print(diffMat*diffMat.T)
+    print(weights)
     print(xTx)
     if np.linalg.det(xTx) == 0.0:
         print ("This matrix is singular, cannot do inverse")
         return
     ws = xTx.I * (xMat.T * (weights * yMat))
     return testPoint * ws
-def lwlr_arr(testArr,xArr,yArr,k=0.01):
+def lwlr_arr(testArr,xArr,yArr,k=1.0):
     m = np.shape(testArr)[0]
     yHat = np.zeros(m)
     for i in range(m):
         yHat[i] = lwlr_point(testArr[i],xArr,yArr,k)
     return yHat
-def curve_regression():
-    xArr = np.fromstring(input('xArr = '), sep=' ')
-    yArr = np.fromstring(input('yArr = '), sep=' ')
-    testPoint = float(input('testPoint x = '))
+def curve_regression(k=10):
+    xArr = loadDataSet()[0]
+    yArr = loadDataSet()[1]
+    testPoint = 3.5  #暂时的一个测试点
     print('The predict y = ', lwlr_point(testPoint, xArr, yArr))
     #picture
-    yHat = lwlr_arr(xArr, xArr, yArr,0.003)
-    xMat=np.mat(xArr)
+    yHat = lwlr_arr(xArr, xArr, yArr, k)
+    xMat = np.mat(xArr)
     srtInd = xMat[:,1].argsort(0)
     xSort=xMat[srtInd][:,0,:]
     fig = plt.figure()
@@ -202,15 +204,15 @@ def compute_delta(a, n1, n2=1):
     plt.plot(aNew, delta_s_smooth, 'r', label = 'delta_s', linestyle = '-', marker = ',')
     plt.show()
 
-'''空气中光速'''
-def p_amend(p, t, g=9.801):
+'''介质中声速'''
+def sonic_p_amend(p, t, g=9.801):
     print (round((g/9.80665*(p-(0.000182-0.00001)*p*t)),1),'mmHg')
     print (round((g/9.80665*(p-(0.000182-0.00001)*p*t)*133.3224/100000),4),"*10^5 Pa")
 
-def v_amend(t, pw, p):
+def sonic_v_amend(t, pw, p):
     v = 331.45*np.sqrt((1+t/273.15)*(1+0.3192*pw/p))
     print(v, 'm/s')
-
+#计算均方根误差
 def rmse():
     x = loadDataSet()[0]
     y = loadDataSet()[1]
