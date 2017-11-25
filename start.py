@@ -1,4 +1,5 @@
 import functions_DIY
+from functions_DIY import *
 import numpy as np
 
-functions_DIY.poly_regression(k=100)
+convert_toLaTeX(hline='False')

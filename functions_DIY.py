@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 __version__ = '0.3'
 __name__ = 'functions_DIY'
@@ -8,29 +9,6 @@ __name__ = 'functions_DIY'
     本模块中默认data.txt的第一行为x变量，第二行以后为y变量，切记，切记！
     若有特殊需要更改顺序，则在使用函数时定好参数！
 '''
-
-
-
-#绘图
-def draw_plot(x, y):
-    fig = plt.figure()
-    ax1 = fig.add_subplot(111)
-    #设置标题
-    ax1.set_title(input('title : '))
-    # 设置X-Y轴标签
-    plt.xlabel(input('xLabel : '))
-    plt.ylabel(input('yLabel : '))
-    #画散点图
-    ax1.scatter(x, y, c='r', marker='x', label = input('Line name : '))
-    #设置图标
-    plt.legend()
-    #画平滑曲线
-    from scipy.interpolate import spline
-    xnew = np.linspace(x.min(), x.max(), 300) #300 represents number of points to make between x.min and x.max
-    y_smooth = spline(x, y, xnew)
-    plt.plot(xnew,y_smooth, 'k', linestyle = '-', marker = ',')
-    #显示所画的图
-    plt.show()
 
 
 #得到点列
@@ -47,27 +25,54 @@ def loadDataSet(filename="data.txt"):
     arr = np.array(lists).astype(float)
     return arr
 
+
+#积分运算
+def integrate(f, a, b, N):    # N是 曲线a到b的面积分为多少个小长方形，分的越多越精确
+    x = np.linspace(a, b, N)
+    fx = f(x)
+    area = np.integrate
+    return area
+
+#绘图
+def draw_plot(x=loadDataSet()[0], y=loadDataSet()[1], title=None, xLabel=None, yLabel=None, linename=None):
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    #设置标题
+    ax1.set_title(title)
+    # 设置X-Y轴标签
+    plt.xlabel(xLabel)
+    plt.ylabel(yLabel)
+    #画散点图
+    ax1.scatter(x, y, c='r', marker='x', label = linename)
+    #设置图标
+    plt.legend()
+    #画平滑曲线
+    from scipy.interpolate import spline
+    xnew = np.linspace(x.min(), x.max(), 300) #300 represents number of points to make between x.min and x.max
+    y_smooth = spline(x, y, xnew)
+    plt.plot(xnew,y_smooth, 'k', linestyle = '-', marker = ',')
+    #显示所画的图
+    plt.show()
+
+
 #标准差
-def standard_deviation():
+def standard_deviation(tolerance=None):
     arr = loadDataSet()[0]
     print('The number of list is: ',len(arr))
     list_average = arr.mean()
     print('The average is: ', list_average)
     list_sigma = arr.std()
     print('The Standard Deviation is: ', list_sigma)
-    print()
-    judge = input('Do you want to get the standard deviation adding tolerance(y or n)?\n')
-    if judge == 'n':
+    if tolerance == None:
         print('Thank you for using, goodby ^_^')
         return
     else:
-        tolerance = float(input('input the Tolerance:'))
         sigma_tolerance = math.sqrt(list_sigma**2 + (tolerance**2)/3)
         print('the Standard Deviation with Tolerance is:', sigma_tolerance)
         return
 
 #将以'\n'间隔的字符变为带'&'的LaTeX格式，这里不可用loadDataSet，因为此处有字符
-def convert_toLaTeX():
+def convert_toLaTeX(hline='True'):
     file = open("data.txt","r")
     list_arr = file.readlines()
     lists = []
@@ -84,14 +89,14 @@ def convert_toLaTeX():
         for j in range(rowNum-1):
             print(arr[i][j], '&', end=' ')
         print(arr[i][rowNum-1],'\\\\')
-        print('\hline')
+        if(hline == 'True'):    print('\hline')
 
 '''
 
 复摆(compound pendulum)实验需要的函数
 '''
 #线性回归
-def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1]):
+def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1], newX=None):
     #y = np.array(np.fromstring(input('Please input the y values'), sep=' '))
     #x = np.array(np.fromstring(input('Please input the x values'), sep=' '))
     A = np.vstack([x, np.ones(len(x))]).T
@@ -109,10 +114,9 @@ def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1]):
     plt.legend()
     plt.show()
     #predict
-    if(input('Do you want to predict(y or n)?') == 'y'):
-        newX = float(input('newX = '))
+    if(newX):
         print('newY = ',m*newX + c)
-    else:print('Thanks for using^_^');
+    print('Thanks for using^_^');
 
 #近似共轭点法
 def compound_pendulum_approximate_conjugate():
@@ -253,9 +257,9 @@ def sonic_v_amend(t, pw, p):
     v = 331.45*np.sqrt((1+t/273.15)*(1+0.3192*pw/p))
     print(v, 'm/s')
 #计算均方根误差
-def rmse():
-    x = loadDataSet()[0]
-    y = loadDataSet()[1]
+def rmse(filename="data.txt"):
+    x = loadDataSet(filename)[0]
+    y = loadDataSet(filename)[1]
     targets = y
     A = np.vstack([x, np.ones(len(x))]).T
     m,c = np.linalg.lstsq(A, y)[0]
