@@ -96,7 +96,7 @@ def convert_toLaTeX(hline='True'):
 复摆(compound pendulum)实验需要的函数
 '''
 #线性回归
-def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1], newX=None):
+def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1], newX=None, plot=None, sigma=None):
     #y = np.array(np.fromstring(input('Please input the y values'), sep=' '))
     #x = np.array(np.fromstring(input('Please input the x values'), sep=' '))
     A = np.vstack([x, np.ones(len(x))]).T
@@ -107,15 +107,19 @@ def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1], newX=None):
     SStot = ((y - y.mean())**2).sum()
     SSres = ((y - m*x - c)**2).sum()
     R2 = 1 - SSres / SStot
-    print('The coefficient of determination is', R2)
+    r = np.sqrt(R2)
+    print('r = ', r)
     #绘图
-    plt.plot(x, y, 'o', label = 'Original Data', markersize = 1 )
-    plt.plot(x, m*x+c, 'r', label = 'Fitted line')
-    plt.legend()
-    plt.show()
+    if plot:
+        plt.plot(x, y, 'o', label = 'Original Data', markersize = 1 )
+        plt.plot(x, m*x+c, 'r', label = 'Fitted line')
+        plt.legend()
+        plt.show()
     #predict
     if(newX):
         print('newY = ',m*newX + c)
+    if sigma:
+        print("sigma = ", np.sqrt((1/R2-1)/len(x)))
     print('Thanks for using^_^');
 
 #近似共轭点法
