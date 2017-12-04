@@ -11,7 +11,6 @@ __name__ = 'functions_DIY'
     若有特殊需要更改顺序，则在使用函数时定好参数！
 '''
 
-
 #得到点列
 def loadDataSet(filename="data.txt"):
     file = open(filename,"r")
@@ -72,8 +71,17 @@ def standard_deviation(tolerance=None):
         print('the Standard Deviation with Tolerance is:', sigma_tolerance)
         return
 
+#不确定度
+def getSigma(x=loadDataSet()[1], getPrint=True):
+    r = linear_regression(getPrint=False)['r']
+    u = linear_regression(getPrint=False)['k']
+    n = len(x)
+    sigma = u * np.sqrt( (1/r/r - 1)/(n/2) )
+    if getPrint:    print('sigma = ', sigma)
+    return sigma
+
 #将以'\n'间隔的字符变为带'&'的LaTeX格式，这里不可用loadDataSet，因为此处有字符
-def convert_toLaTeX(hline='True'):
+def convert_toLaTeX(hline=True):
     file = open("data.txt","r")
     list_arr = file.readlines()
     lists = []
@@ -90,38 +98,53 @@ def convert_toLaTeX(hline='True'):
         for j in range(rowNum-1):
             print(arr[i][j], '&', end=' ')
         print(arr[i][rowNum-1],'\\\\')
-        if(hline == 'True'):    print('\hline')
+        if hline:    print('\hline')
 
 '''
 
 复摆(compound pendulum)实验需要的函数
 '''
 #线性回归
-def linear_regression(x=loadDataSet()[0], y=loadDataSet()[1], newX=None, plot=None, sigma=None):
+class linear_regression():
+    #x=loadDataSet()[0], y=loadDataSet()[1], newX=None, drawPlot=None, getSigma=None, getPrint = True
     #y = np.array(np.fromstring(input('Please input the y values'), sep=' '))
     #x = np.array(np.fromstring(input('Please input the x values'), sep=' '))
-    A = np.vstack([x, np.ones(len(x))]).T
-    #model
-    m,c = np.linalg.lstsq(A, y)[0]
-    print('y = ', round(m, 6), 'x  + ', round(c, 6))
-    #计算拟合优度
-    SStot = ((y - y.mean())**2).sum()
-    SSres = ((y - m*x - c)**2).sum()
-    R2 = 1 - SSres / SStot
-    r = np.sqrt(R2)
-    print('r = ', r)
+    def __init__(self):
+        self.x = loadDataSet()[0]
+        self.y = loadDataSet()[1]
+        A = np.vstack([self.x, np.ones(len(self.x))]).T
+        #model
+        m,c = np.linalg.lstsq(A, self.y)[0]
+        self.m = m
+        self.c = c
+        self.k = m
+        self.b = c
+        #计算拟合优度
+        SStot = ((self.y - self.y.mean())**2).sum()
+        SSres = ((self.y - m*self.x - c)**2).sum()
+        self.R2 = 1 - SSres / SStot
+        self.r = np.sqrt(self.R2)
     #绘图
-    if plot:
-        plt.plot(x, y, 'o', label = 'Original Data', markersize = 1 )
-        plt.plot(x, m*x+c, 'r', label = 'Fitted line')
+    def drawPlot(self):
+        plt.plot(self.x, self.y, 'o', label = 'Original Data', markersize = 1 )
+        plt.plot(self.x, self.m*self.x+self.c, 'r', label = 'Fitted line')
         plt.legend()
         plt.show()
     #predict
-    if(newX):
-        print('newY = ',m*newX + c)
-    if sigma:
-        print("sigma = ", np.sqrt((1/R2-1)/len(x)))
-    print('Thanks for using^_^');
+    def predict(self, newX):
+        newY = self.m*newX + self.c
+        print('newY = ', newY)
+        return newY
+    def getSigma(self, R2):
+        sigma = np.sqrt((1/R2-1)/len(self.x))
+        print("sigma = ", sigma)
+        return sigma
+    def getPrint(self):
+        print('y = ', round(self.m, 6), 'x  + ', round(self.c, 6))
+        print('r = ', self.r)
+        print('Thanks for using^_^')
+    #dict = {'k': m, 'b': c, 'r': r}
+    #return dict
 
 #近似共轭点法
 def compound_pendulum_approximate_conjugate():
@@ -184,7 +207,7 @@ def curve_regression(k=10):
     plt.show()
 
 #多项式拟合
-def poly_regression(x=loadDataSet()[0], y=loadDataSet()[1], k=3):
+def poly_regression(x=loadDataSet()[0], y=loadDataSet()[1], k=3, testpoint=None ,save=None):   #k为多项式的最高次数
     z1 = np.polyfit(x, y, k)#用k次多项式拟合
     p1 = np.poly1d(z1)
     print(p1) #在屏幕上打印拟合多项式
@@ -193,19 +216,19 @@ def poly_regression(x=loadDataSet()[0], y=loadDataSet()[1], k=3):
     plot2=plt.plot(x, yvals, 'r',label='polyfit values')
     plt.xlabel('x axis')
     plt.ylabel('y axis')
-    plt.legend(loc=4)#指定legend的位置,读者可以自己help它的用法
+    plt.legend(loc=4)#指定legend的位置
     plt.title('polyfitting')
     plt.show()
-    plt.savefig('p1.png')
-    testPoint = input('testPoint ? ')
-    print(p1(testPoint))
+    if save:    plt.savefig('p1.png')
+    if testpoint:   print(p1(testPoint))
+
 
 #指定函数拟合
 def func(a, b, x=loadDataSet()[0]):   #a,b为函数需要确定的参数
     return a*np.exp(b/x)
 def specify_regression(x=loadDataSet()[0], y=loadDataSet()[1]):
     popt, pcov = np.curve_fit(func, x, y)  #没运行过，不知numpy是否有curve_fit函数
-    a=popt[0]#popt里面是拟合系数，读者可以自己help其用法
+    a=popt[0]#popt里面是拟合系数
     b=popt[1]
     yvals=func(x,a,b)
     plot1=plt.plot(x, y, '*',label='original values')
@@ -272,3 +295,12 @@ def rmse(filename="data.txt"):
     rmse = np.sqrt(((predictions - targets) ** 2).mean())
     print("RMSE : ", rmse)
     return rmse
+
+'''迈克尔逊干涉仪'''
+#计算气压折射率
+def n0_sigma(lambda_prime=632.8, D=4.00):
+    a=linear_regression()
+    k = a.k
+    n0 = 1 + lambda_prime/2/D/k/10000
+    sigma = getSigma(getPrint=False)
+    print('n0 ± sigma = ', n0, '±', sigma)
