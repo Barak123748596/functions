@@ -73,8 +73,9 @@ def standard_deviation(tolerance=None):
 
 #不确定度
 def getSigma(x=loadDataSet()[1], getPrint=True):
-    r = linear_regression(getPrint=False)['r']
-    u = linear_regression(getPrint=False)['k']
+    regression = linear_regression()
+    r = regression.r
+    u = regression.k
     n = len(x)
     sigma = u * np.sqrt( (1/r/r - 1)/(n/2) )
     if getPrint:    print('sigma = ', sigma)
@@ -207,7 +208,7 @@ def curve_regression(k=10):
     plt.show()
 
 #多项式拟合
-def poly_regression(x=loadDataSet()[0], y=loadDataSet()[1], k=3, testpoint=None ,save=None):   #k为多项式的最高次数
+def poly_regression(x=loadDataSet()[0], y=loadDataSet()[1], k=3, testPoint=None ,save=None):   #k为多项式的最高次数
     z1 = np.polyfit(x, y, k)#用k次多项式拟合
     p1 = np.poly1d(z1)
     print(p1) #在屏幕上打印拟合多项式
@@ -220,7 +221,7 @@ def poly_regression(x=loadDataSet()[0], y=loadDataSet()[1], k=3, testpoint=None 
     plt.title('polyfitting')
     plt.show()
     if save:    plt.savefig('p1.png')
-    if testpoint:   print(p1(testPoint))
+    if testPoint:   print("predict point : ", p1(testPoint))
 
 
 #指定函数拟合
@@ -241,9 +242,7 @@ def specify_regression(x=loadDataSet()[0], y=loadDataSet()[1]):
     plt.savefig('p2.png')
 
 
-'''
-霍尔效应
-'''
+'''霍尔效应'''
 def from_I_U_K_to_B():
     I_M = float(input('input I_H: '))
     U_H = np.fromstring(input('input U_H: '), sep='\t')
@@ -304,3 +303,17 @@ def n0_sigma(lambda_prime=632.8, D=4.00):
     n0 = 1 + lambda_prime/2/D/k/10000
     sigma = getSigma(getPrint=False)
     print('n0 ± sigma = ', n0, '±', sigma)
+
+'''杨氏模量'''
+class Young_modulus():
+    def __init__(self):
+        self.g = 9.80
+        self.k =0.00059
+        self.L = 775
+        self.d = 0.328
+        self.sigma_d = 0.006
+    def E(self):
+        E = 4 * self.g * self.L / (np.pi * self.d * self.d * self.k) * 1000
+        print(np.round(E/10**11, 2), '×10^11 Pa')
+        return E
+
