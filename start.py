@@ -1,5 +1,4 @@
-import functions_DIY
-from functions_DIY import *
 import numpy as np
+from functions_DIY import *
 
-convert_toLaTeX()
+poly_regression(k=3)
