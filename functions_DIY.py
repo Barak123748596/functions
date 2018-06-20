@@ -28,7 +28,9 @@ def convert_toLaTeX(hline=True):
         for j in range(rowNum-1):
             print(arr[i][j], '&', end=' ')
         print(arr[i][rowNum-1],'\\\\', end='')
-        if hline:    print('\hline')
+        if hline:
+            for i in range(hline):
+                print('\hline')
         else:   print('')
 
 
